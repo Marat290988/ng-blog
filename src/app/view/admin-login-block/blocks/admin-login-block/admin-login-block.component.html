@@ -1,4 +1,6 @@
 <app-admin-login-block-ui
-    [formError]="serverError"
+    *ngIf="loaded$ | async"
+    [formError]="serverError$ | async"
     (login)="onLogin($event)"
+    [disabled]="loading$ | async"
 ></app-admin-login-block-ui>

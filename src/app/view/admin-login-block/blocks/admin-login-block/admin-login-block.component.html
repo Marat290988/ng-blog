@@ -1,1 +1,4 @@
-<app-admin-login-block-ui></app-admin-login-block-ui>
+<app-admin-login-block-ui
+    [formError]="serverError"
+    (login)="onLogin($event)"
+></app-admin-login-block-ui>

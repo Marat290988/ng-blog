@@ -4,6 +4,7 @@ import { of } from "rxjs";
 import { login, loginSuccess, loginFailed } from './admin-auth.actions';
 import { AdminAuthService } from './services/admin-auth.service';
 import { catchError, map, switchMap } from 'rxjs/operators';
+import { AuthData } from "./admin-auth.reducer";
 
 @Injectable()
 export class AdminAuthEffects {
@@ -14,7 +15,7 @@ export class AdminAuthEffects {
           login: action.login,
           password: action.password
         }).pipe(
-          map(loginSuccessData => loginSuccess(loginSuccessData)),
+          map((authData: AuthData) => loginSuccess({ authData })),
           catchError(
             error => of(loginFailed({
               serverError: error.message

@@ -3,29 +3,48 @@ import {
   HttpRequest,
   HttpHandler,
   HttpEvent,
-  HttpInterceptor
+  HttpInterceptor, HttpErrorResponse
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AdminAuthService } from './../store/services/admin-auth.service';
+import {select, Store} from "@ngrx/store";
+import {getAccessToken} from "../store/admin-auth.selectors";
+import {catchError, first, flatMap, mergeMap} from "rxjs/operators";
+import {EMPTY} from "rxjs";
 
 @Injectable()
 export class AdminAuthInterceptor implements HttpInterceptor {
 
   constructor(
-    private adminAuthService: AdminAuthService
+    private store$: Store
   ) {}
 
   intercept(
-      request: HttpRequest<unknown>, 
+      request: HttpRequest<unknown>,
       next: HttpHandler
     ): Observable<HttpEvent<unknown>> {
-      if (this.adminAuthService.accessToken) {
-        request = request.clone({
-          setHeaders: {
-            Authorization: `Bearer ${this.adminAuthService.accessToken}`
-          }
+      return this.store$.pipe(
+        select(getAccessToken),
+        first(),
+        mergeMap(token => {
+          const authRequest = token ? request.clone({
+            setHeaders: {
+              Authorization: `Bearer ${token}`
+            }
+          }) : request;
+
+          return next.handle(authRequest).pipe(
+            catchError(err => {
+              if (err instanceof HttpErrorResponse) {
+                if (err.status === 401) {
+                  console.log('Redirect on login page OR sign out');
+                  return EMPTY;
+                }
+              }
+
+              throw err;
+            })
+          )
         })
-      }
-      return next.handle(request);
+      )
   }
 }

@@ -1,25 +1,33 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {filter, map} from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { Store, select } from '@ngrx/store';
-import { getAccessToken } from './../admin-auth.selectors';
+import { getAuthData } from './../admin-auth.selectors';
 import {AuthData} from "../admin-auth.reducer";
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminAuthService {
-  accessToken?: string;
+
+  isAuth$ = this.store$.pipe(
+    select(getAuthData),
+    filter(authData => authData !== undefined),
+    map(authData => !!authData)
+  )
+
+  isGuest$ = this.isAuth$.pipe(
+    map(isAuth => !isAuth)
+  );
 
   constructor(
     private httpClient: HttpClient,
     private jwtHelperService: JwtHelperService,
     private store$: Store
   ) {
-    this.store$.pipe(select(getAccessToken))
-      .subscribe(accessToken => this.accessToken = accessToken)
+
   }
 
   login(body: {login: string, password: string}): Observable<AuthData> {

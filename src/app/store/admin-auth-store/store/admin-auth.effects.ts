@@ -1,12 +1,13 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
-import { of, timer, tap, fromEvent } from "rxjs";
+import { of, timer, tap, fromEvent, distinctUntilChanged, skip } from "rxjs";
 import {login, loginSuccess, loginFailed, initAdminAuth, logoutSuccess, extractLoginData} from './admin-auth.actions';
 import { AdminAuthService } from './services/admin-auth.service';
 import { catchError, delay, delayWhen, filter, first, map, switchMap } from 'rxjs/operators';
 import { AuthData } from "./admin-auth.reducer";
 import {select, Store} from "@ngrx/store";
-import {isAuth} from "./admin-auth.selectors";
+import {getAuthData, isAuth} from "./admin-auth.selectors";
+import { Router } from "@angular/router";
 
 
 @Injectable()
@@ -70,9 +71,22 @@ export class AdminAuthEffects {
       map(() => extractLoginData())
     ));
 
+    listenAuthorizeEffect$ = createEffect(() => this.actions$.pipe(
+      ofType(initAdminAuth), //реакция на событие
+      switchMap(() => this.adminAuthService.isAuth$), //переключаем подписку
+      //filter(authData => authData !== undefined), //пропускаем если соответствует условию
+      //map(authData => !!authData), //что то делаем и возвращаем с полученными данными
+      distinctUntilChanged(), //не пропускает значение, если предыдущее такое же
+      skip(1), //ничего не делаем в первом запуске
+      tap(isAuthorized => {
+        this.router.navigateByUrl(isAuthorized ? '/admin' : '/admin/auth/login');
+      })
+    ), {dispatch: false});
+
     constructor(
         private actions$: Actions,
         private adminAuthService: AdminAuthService,
-        private store$: Store
+        private store$: Store,
+        private router: Router
     ) {}
 }

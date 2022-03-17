@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {filter, map} from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { Store, select } from '@ngrx/store';
 import { getAuthData } from './../admin-auth.selectors';
-import {AuthData} from "../admin-auth.reducer";
+import { AuthData } from "../admin-auth.reducer";
 
 @Injectable({
   providedIn: 'root'

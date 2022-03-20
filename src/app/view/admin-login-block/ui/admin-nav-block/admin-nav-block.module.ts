@@ -6,6 +6,7 @@ import {RouterModule} from "@angular/router";
 import {MatTreeModule} from "@angular/material/tree";
 import {MatIconModule} from "@angular/material/icon";
 import {MatButtonModule} from "@angular/material/button";
+import { AdminMenuStoreModule } from 'src/app/store/admin-menu-store/admin-menu-store.module';
 
 
 
@@ -19,7 +20,8 @@ import {MatButtonModule} from "@angular/material/button";
     RouterModule,
     MatTreeModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    AdminMenuStoreModule
   ],
   exports: [
     AdminNavBlockComponent

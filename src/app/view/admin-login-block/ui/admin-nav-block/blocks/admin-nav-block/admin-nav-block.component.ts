@@ -1,35 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { NestedTreeNode } from './../models/nested-tree-node';
-import { of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { NestedTreeNode } from 'src/app/store/admin-menu-store/store/admin-menu.reducer';
+import { Store, select } from '@ngrx/store';
+import { initMenu } from './../../../../../../store/admin-menu-store/store/admin-menu.actions';
+import { getMenuData } from 'src/app/store/admin-menu-store/store/admin-menu.selectors';
 
-const TREE_DATA: NestedTreeNode[] = [
-  {
-    name: 'Fruit',
-    children: [
-      {name: 'Apple'},
-      {name: 'Banana'},
-      {name: 'Fruit loops'},
-    ]
-  }, {
-    name: 'Vegetables',
-    children: [
-      {
-        name: 'Green',
-        children: [
-          {name: 'Broccoli'},
-          {name: 'Brussels sprouts'},
-        ]
-      }, {
-        name: 'Orange',
-        children: [
-          {name: 'Pumpkins'},
-          {name: 'Carrots'},
-        ]
-      },
-    ]
-  },
-];
 
 @Component({
   selector: 'app-admin-nav-block',
@@ -38,13 +13,16 @@ const TREE_DATA: NestedTreeNode[] = [
 })
 export class AdminNavBlockComponent implements OnInit {
 
-  data = of<NestedTreeNode[]>(TREE_DATA).pipe(
-    delay(500)
+  data$: Observable<NestedTreeNode[]> = this.store$.pipe(
+    select(getMenuData)
   );
 
-  constructor() { }
+  constructor(
+    private store$: Store
+  ) { }
 
   ngOnInit(): void {
+    this.store$.dispatch(initMenu());
   }
 
 }
